@@ -1,0 +1,88 @@
+version: '3'
+services:
+    php:
+        build: ./infrastructure/php
+        container_name: ${PREFIX}_php
+        restart: unless-stopped
+        tty: true
+        environment:
+            SERVICE_NAME: php
+            SERVICE_TAGS: dev
+        working_dir: /var/www
+        volumes:
+            - ./:/var/www
+            - ./infrastructure/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+        expose:
+            - 9000
+        networks:
+            - app-network
+
+    nginx:
+        build:
+            context: ./infrastructure/nginx
+            args:
+                DEV_DOMAIN: ${DEV_DOMAIN}
+                NGINX_SSL: ${NGINX_SSL}
+        image: 'nginx:alpine'
+        container_name: ${PREFIX}_nginx
+        # restart: unless-stopped
+        tty: true
+        ports:
+            - "8099:80"
+            - "4499:443"
+        volumes:
+            - ./:/var/www
+            - ./infrastructure/nginx/conf.d/${INFRASTRUCTURE_ENV}:/etc/nginx/conf.d
+            - ./infrastructure/nginx/logs:/var/log/nginx
+        networks:
+            app-network:
+                ipv4_address: 172.22.9.100
+
+    db:
+        image: mariadb:latest
+        container_name: ${PREFIX}_db
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "33099:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: secret
+            MYSQL_USER: root
+            MYSQL_PASSWORD: secret
+            MYSQL_DATABASE: students_system
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+        volumes:
+            - ./dbdata:/var/lib/mysql
+            - ./infrastructure/mysql/my.cnf:/etc/mysql/my.cnf
+            - ./init.sql:/data/application/init.sql
+        networks:
+            app-network:
+                ipv4_address: 172.22.9.101
+
+    node:
+        image: "node:18.2.0"
+        container_name: ${PREFIX}_node
+        restart: unless-stopped
+        tty: true
+        working_dir: /var/www
+        environment:
+            - NODE_ENV=development
+        volumes:
+            - ./:/var/www
+        expose:
+            - "8080"
+        # command: "npm run dev"
+        # entrypoint: ['npm']
+
+networks:
+    app-network:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.22.9.0/24
+
+volumes:
+    dbdata:
+        driver: local

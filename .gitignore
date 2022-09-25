@@ -1,0 +1,6 @@
+/.idea
+/tests/coverage
+/dbdata
+/Extensions
+/node_modules
+/vendor
