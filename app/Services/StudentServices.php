@@ -2,6 +2,8 @@
 
     namespace App\Services;
 
+    use App\Events\RecordCreated;
+    use App\Events\RecordUpdated;
     use App\Models\Student;
     use Illuminate\Support\Collection;
     use Illuminate\Support\Facades\App;
@@ -55,7 +57,7 @@
             $result = $this->getDefaultResultStructure();
             $student = App::make(Student::class);
             $result = $this->saveStudentData($student, $data, $result);
-
+            RecordCreated::dispatch($student, $data);
             return $result;
         }
 
@@ -70,7 +72,9 @@
                         'Student not found'
                     ];
                 }
+                $originalData = $student->toArray();
                 $result = $this->saveStudentData($student, $data, $result);
+                RecordUpdated::dispatch($student, $originalData, $data);
             } else {
                 $result['status'] = 'error';
                 $result['errors'] = [
