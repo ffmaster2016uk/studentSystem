@@ -20,7 +20,7 @@
             $result->assertStatus(200);
             foreach($students as $student) {
                 $result->assertSee($student->IdentificationNo);
-                $this->get(route('students-view', $student->id))->assertStatus(200)->assertSee($student->IdentificationNo);
+                $this->get(route('students-view', $student->Id))->assertStatus(200)->assertSee($student->IdentificationNo);
             }
         }
 
@@ -52,7 +52,7 @@
             $this->actAsUser();
             $student = Student::factory()->create();
             $newData = Student::factory()->raw();
-            $newData['Id'] = $student->id;
+            $newData['Id'] = $student->Id;
             $this->patch(route('students-update'), $newData)->assertStatus(200)->assertSee($newData['IdentificationNo']);
         }
 
@@ -61,7 +61,7 @@
             $this->actAsUser();
             $student = Student::factory()->create();
             $newData = Student::factory()->raw();
-            $newData['Id'] = $student->id;
+            $newData['Id'] = $student->Id;
             unset($newData['Name']);
             $this->patch(route('students-update'), $newData)->assertStatus(400)->assertSee('Failed to pass validation');
         }
@@ -71,7 +71,7 @@
             $this->actAsUser();
             $student = Student::factory()->create();
             $newData = Student::factory()->raw();
-            $newData['Id'] = $student->id;
+            $newData['Id'] = $student->Id;
             $newData['randomField'] = 1;
             $this->patch(route('students-update'), $newData)->assertStatus(400);
         }

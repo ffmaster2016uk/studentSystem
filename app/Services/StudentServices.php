@@ -57,7 +57,10 @@
             $result = $this->getDefaultResultStructure();
             $student = App::make(Student::class);
             $result = $this->saveStudentData($student, $data, $result);
-            RecordCreated::dispatch($student, $data);
+            if($result['status'] == 'success') {
+                RecordCreated::dispatch($student, $data);
+            }
+
             return $result;
         }
 
@@ -74,7 +77,10 @@
                 }
                 $originalData = $student->toArray();
                 $result = $this->saveStudentData($student, $data, $result);
-                RecordUpdated::dispatch($student, $originalData, $data);
+                if($result['status'] == 'success') {
+                    RecordUpdated::dispatch($student, $originalData, $data);
+                }
+
             } else {
                 $result['status'] = 'error';
                 $result['errors'] = [
