@@ -70,10 +70,7 @@
             if(is_array($data) && array_key_exists(self::ID_KEY, $data) && is_numeric($data[self::ID_KEY])) {
                 $student = Student::find($data[self::ID_KEY]);
                 if(!$student) {
-                    $result['status'] = 'error';
-                    $result['errors'] = [
-                        'Student not found'
-                    ];
+                    $result = $this->setErrorResult(['Student not found']);
                 }
                 $originalData = $student->toArray();
                 $result = $this->saveStudentData($student, $data, $result);
@@ -82,10 +79,8 @@
                 }
 
             } else {
-                $result['status'] = 'error';
-                $result['errors'] = [
-                    'Id not provided'
-                ];
+                $result = $this->setErrorResult(['Id not provided']);
+
             }
 
             return $result;
@@ -105,16 +100,30 @@
             $student->fill($data);
             try {
                 $student->save();
-                $result['status'] = 'success';
-                $result['data'] = $student;
+                $result = $this->setSuccessResult($student);
             } catch (\Exception $e) {
-                $result['status'] = 'error';
-                $result['errors'] = [
-                    $e->getMessage()
-                ];
+                $result = $this->setErrorResult([$e->getMessage()]);
             }
 
             return $result;
+        }
+
+        public function setErrorResult($errors, $message = null, $data = null)
+        {
+            return [
+                'status' => 'error',
+                'errors' => $errors,
+                'message' => $message,
+                'data' => $data,
+            ];
+        }
+
+        public function setSuccessResult($data)
+        {
+            return [
+                'status' => 'success',
+                'data' => $data,
+            ];
         }
 
         public function searchStudent($data) : array
@@ -125,13 +134,9 @@
                 array_key_exists(self::SEARCH_VALUE_KEY, $data) && !empty($data[self::SEARCH_VALUE_KEY])
             ) {
                 $students = Student::query()->where($data[self::SEARCH_FIELD_KEY], 'LIKE', '%'.$data[self::SEARCH_VALUE_KEY].'%')->get();
-                $result['status'] = 'success';
-                $result['data'] = $students;
+                $result = $this->setSuccessResult($students);
             } else {
-                $result['status'] = 'error';
-                $result['errors'] = [
-                    'Please provide a search field and a search value'
-                ];
+                $result = $this->setErrorResult(['Please provide a search field and a search value']);
             }
 
             return $result;

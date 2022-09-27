@@ -17,11 +17,8 @@
 
         public function view($id = null)
         {
-            $result = $this->service->getStudents($id);
-            return response()->json([
-                'status' => 'success',
-                'data' => $result,
-            ]);
+            $data = $this->service->getStudents($id);
+            return response()->json($this->service->setSuccessResult($data));
 
         }
 
@@ -30,12 +27,7 @@
             $data = $request->all();
             $validator = Validator::make($data, $this->service->getStoreValidationRules());
             if ($validator->fails()) {
-                return response()->json([
-                    'status' => 'error',
-                    'errors' => $validator->errors(),
-                    'message' => 'Failed to pass validation',
-                    'data' => null,
-                ], 400);
+                return response()->json($this->service->setErrorResult($validator->errors(), 'Failed to pass validation'), 400);
             }
 
             $result = $this->service->storeStudent($data);
@@ -48,12 +40,7 @@
             $data = $request->all();
             $validator = Validator::make($data, $this->service->getUpdateValidationRules());
             if ($validator->fails()) {
-                return response()->json([
-                    'status' => 'error',
-                    'errors' => $validator->errors(),
-                    'message' => 'Failed to pass validation',
-                    'data' => null,
-                ], 400);
+                return response()->json($this->service->setErrorResult($validator->errors(), 'Failed to pass validation'), 400);
             }
 
             $result = $this->service->updateStudent($data);
@@ -66,12 +53,7 @@
             $data = $request->all();
             $validator = Validator::make($data, $this->service->getSearchValidationRules());
             if ($validator->fails()) {
-                return response()->json([
-                    'status' => 'error',
-                    'errors' => $validator->errors(),
-                    'message' => 'Failed to pass validation',
-                    'data' => null,
-                ], 400);
+                return response()->json($this->service->setErrorResult($validator->errors(), 'Failed to pass validation'), 400);
             }
 
             $result = $this->service->searchStudent($data);
