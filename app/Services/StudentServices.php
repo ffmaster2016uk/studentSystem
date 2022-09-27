@@ -54,9 +54,8 @@
 
         public function storeStudent($data) : array
         {
-            $result = $this->getDefaultResultStructure();
             $student = App::make(Student::class);
-            $result = $this->saveStudentData($student, $data, $result);
+            $result = $this->saveStudentData($student, $data);
             if($result['status'] == 'success') {
                 RecordCreated::dispatch($student, $data);
             }
@@ -66,36 +65,25 @@
 
         public function updateStudent($data)
         {
-            $result = $this->getDefaultResultStructure();
             if(is_array($data) && array_key_exists(self::ID_KEY, $data) && is_numeric($data[self::ID_KEY])) {
                 $student = Student::find($data[self::ID_KEY]);
                 if(!$student) {
-                    $result = $this->setErrorResult(['Student not found']);
+                    return $this->setErrorResult(['Student not found']);
                 }
                 $originalData = $student->toArray();
-                $result = $this->saveStudentData($student, $data, $result);
+                $result = $this->saveStudentData($student, $data);
                 if($result['status'] == 'success') {
                     RecordUpdated::dispatch($student, $originalData, $data);
                 }
 
             } else {
                 $result = $this->setErrorResult(['Id not provided']);
-
             }
 
             return $result;
         }
 
-        private function getDefaultResultStructure()
-        {
-            return [
-                'status' => '',
-                'errors' => null,
-                'data' => null,
-            ];
-        }
-
-        private function saveStudentData($student, $data, $result)
+        private function saveStudentData($student, $data)
         {
             $student->fill($data);
             try {
@@ -128,7 +116,6 @@
 
         public function searchStudent($data) : array
         {
-            $result = $this->getDefaultResultStructure();
             if(
                 is_array($data) && array_key_exists(self::SEARCH_FIELD_KEY, $data) && !empty($data[self::SEARCH_FIELD_KEY]) &&
                 array_key_exists(self::SEARCH_VALUE_KEY, $data) && !empty($data[self::SEARCH_VALUE_KEY])
