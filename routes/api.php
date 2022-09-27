@@ -19,7 +19,7 @@
         return $request->user();
     });
 
-    Route::group(['prefix' => 'students', 'middleware' => ['auth:sanctum']], function () {
+    Route::group(['prefix' => 'students'], function () {
         Route::post('/search', StudentController::class . '@search')->name('students-search');
         Route::get('/{id?}', StudentController::class . '@view')->name('students-view');
         Route::put('/store', StudentController::class . '@store')->name('students-store');
