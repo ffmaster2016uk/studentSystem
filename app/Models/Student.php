@@ -17,6 +17,7 @@
         use LoggableTrait;
 
         protected $table = 'students';
+        protected $primaryKey = 'Id';
 
         protected $guarded = [];
 

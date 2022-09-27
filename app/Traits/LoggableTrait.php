@@ -9,7 +9,7 @@
     {
         public function logs()
         {
-            return $this->morphMany(ActivityLog::class, 'loggable');
+            return $this->morphMany(ActivityLog::class, 'loggable', null, null, 'Id');
         }
 
         public function buildChangedDataStructure($originalData, $submittedData)

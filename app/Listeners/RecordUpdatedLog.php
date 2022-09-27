@@ -37,7 +37,7 @@ class RecordUpdatedLog
                 'subject' => 'Updated',
                 'data_submitted' => json_encode($submittedData),
                 'previous_data' => json_encode($originalData),
-                'data_changed' => $object->buildChangedJobDataStructure($originalData, $submittedData)
+                'data_changed' => $object->buildChangedDataStructure($originalData, $submittedData)
             ]);
         }
     }
