@@ -3,7 +3,9 @@
     namespace Tests\Feature;
 
     use App\Models\Student;
+    use App\Models\User;
     use Illuminate\Foundation\Testing\DatabaseTransactions;
+    use Laravel\Sanctum\Sanctum;
     use Tests\TestCase;
 
     class StudentsTest extends TestCase
@@ -12,6 +14,7 @@
 
         public function testViewStudents()
         {
+            $this->actAsUser();
             $students = Student::factory(5)->create();
             $result = $this->get(route('students-view'));
             $result->assertStatus(200);
@@ -23,12 +26,14 @@
 
         public function testStoreStudent()
         {
+            $this->actAsUser();
             $data = Student::factory()->raw();
             $this->put(route('students-store'), $data)->assertStatus(200)->assertSee($data['IdentificationNo']);
         }
 
         public function testStoreStudentValidationFail()
         {
+            $this->actAsUser();
             $data = Student::factory()->raw();
             unset($data['Name']);
             $this->put(route('students-store'), $data)->assertStatus(400)->assertSee('Failed to pass validation');
@@ -36,6 +41,7 @@
 
         public function testStoreStudentExceptionHandling()
         {
+            $this->actAsUser();
             $data = Student::factory()->raw();
             $data['randomField'] = 1;
             $this->put(route('students-store'), $data)->assertStatus(400);
@@ -43,6 +49,7 @@
 
         public function testUpdateStudent()
         {
+            $this->actAsUser();
             $student = Student::factory()->create();
             $newData = Student::factory()->raw();
             $newData['Id'] = $student->id;
@@ -51,6 +58,7 @@
 
         public function testUpdateStudentValidationFail()
         {
+            $this->actAsUser();
             $student = Student::factory()->create();
             $newData = Student::factory()->raw();
             $newData['Id'] = $student->id;
@@ -60,6 +68,7 @@
 
         public function testUpdateStudentExceptionHandling()
         {
+            $this->actAsUser();
             $student = Student::factory()->create();
             $newData = Student::factory()->raw();
             $newData['Id'] = $student->id;
@@ -69,6 +78,7 @@
 
         public function testStudentSearch()
         {
+            $this->actAsUser();
             $students = Student::factory(5)->create();
             $lastStudent = $students->last();
             $data = [
@@ -80,9 +90,17 @@
 
         public function testStudentSearchValidationFail()
         {
+            $this->actAsUser();
             $data = [
                 'searchField' => 'IdentificationNo',
             ];
             $this->post(route('students-search'), $data)->assertStatus(400)->assertSee('Failed to pass validation');
+        }
+
+        private function actAsUser()
+        {
+            Sanctum::actingAs(
+                User::factory()->create()
+            );
         }
     }
