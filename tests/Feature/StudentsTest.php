@@ -29,6 +29,10 @@
             $this->actAsUser();
             $data = Student::factory()->raw();
             $this->put(route('students-store'), $data)->assertStatus(200)->assertSee($data['IdentificationNo']);
+            $this->assertDatabaseHas('activity_logs', [
+                'loggable_type' => Student::class,
+                'type' => 'created',
+            ]);
         }
 
         public function testStoreStudentValidationFail()
@@ -54,6 +58,11 @@
             $newData = Student::factory()->raw();
             $newData['Id'] = $student->Id;
             $this->patch(route('students-update'), $newData)->assertStatus(200)->assertSee($newData['IdentificationNo']);
+            $this->assertDatabaseHas('activity_logs', [
+                'loggable_id' => $student->Id,
+                'loggable_type' => Student::class,
+                'type' => 'updated',
+            ]);
         }
 
         public function testUpdateStudentValidationFail()

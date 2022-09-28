@@ -1,64 +1,113 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+## Student System setup
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+- Make sure you have docker and docker-compose installed on your local environment
+- There is a docker-compose.yml file at the root level of this repo, you can adjust the settings in there if you'd like to use different ports etc
+  - With more time I could have made more of the settings loading from the .env file.
+  - images, config files are located in the infrastructure folder at root level, in the respective folder for nginx, php and mysql
+- From the root level of this repo, where the docker-compose.yml file is, run the following command:
+```
+sudo docker-compose up -d --build --force-recreate
+```
+- Depending on your local setup, you might need to grant more permission to the storage folder in laravel, but as this is just a local setup, please run command below (on production environment, I would recommend looking into checking the users groups for docker user and server user, making sure they are in the same group and have enough permission to write to this folder)  :
+```
+sudo chmod 777 -R storage
+```
+- From the root level of the repo, there is the laravel .env file, if you changed any settings in the docker-compose.yml file, make sure to update accordingly here, for example, if you changed the db username and password
+  - The local domain name for the up have been set to http://students-system.local:8099, using port 8099 to reduce changes of conflicting ports, make sure you add a host entry on your local to point students-system.local to 127.0.0.1
+- Next run the following command to be able to execute commands in the php container:
+```
+sudo docker exec -it ss_php bash
+```
+- Once inside the php container, run the following commands
+  - Composer to install the dependencies
+  - Migration to create the db tables
+  - Seeding a default user into the system
+    - Username: william.gu@blueyonder.co.uk
+    - Password: password
+```
+composer install
+php artisan migrate
+php artisan db:seed
+```
 
-## About Laravel
+- Once the system is ready, from the php container, run the tests:
+```
+php artisan test
+```
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### System usage guide
+I would recommend using Postman to test the system: https://www.postman.com/downloads/
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+To use the API end points, please first log in with the seeded user, if I had more time, I would have provided an interface to register an user (laravel auth did created one, but I've not tested it to make sure it work)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```
+Send post request to: http://students-system.local:8099/api/login
+```
+With the following params:
 
-## Learning Laravel
+- email: william.gu@blueyonder.co.uk
+- password: password
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Expected response similar to:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```
+{
+    "status": "success",
+    "token": "4|LNMJcX9XA1QCSnuYotuR3I80qLwTZrrRoRlYNMtt"
+}
+```
+Please take note of the token to use for subsequent requests
 
-## Laravel Sponsors
+To create a new student record:
+```
+Send put request to: http://students-system.local:8099/api/students/store
+```
+The validation rules for this request are:
+```php
+[
+    'Name' => 'required|legal_characters',
+    'Surname' => 'required|legal_characters',
+    'IdentificationNo' => 'required|legal_characters',
+    'Country' => 'nullable|legal_characters',
+    'DateOfBirth' => 'nullable|date_format:Y-m-d',
+    'RegisteredOn' => 'nullable|date_format:Y-m-d',
+];
+```
+To update an existing student record:
+```
+Send patch request to: http://students-system.local:8099/api/students/update
+```
+The validation rules for this request are:
+```php
+[
+    'Id' => 'required|integer',
+    'Name' => 'required|legal_characters',
+    'Surname' => 'required|legal_characters',
+    'IdentificationNo' => 'required|legal_characters',
+    'Country' => 'nullable|legal_characters',
+    'DateOfBirth' => 'nullable|date_format:Y-m-d',
+    'RegisteredOn' => 'nullable|date_format:Y-m-d',
+];
+```
+To view/retrieve all students:
+```
+Send get request to: http://students-system.local:8099/api/students/
+```
+To view/retrieve a particular student (replace id number after students/ with the id of the student you wish to retrieve:
+```
+Send get request to: http://students-system.local:8099/api/students/1
+```
+To search for a student record:
+```
+Send post request to: http://students-system.local:8099/api/students/search
+```
+The validation rules for this request are:
+```php
+[
+    'searchField' => 'required|legal_characters',
+    'searchValue' => 'required|legal_characters',
+];
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+###Thoughts, notes and possible improvements on the task
 
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
