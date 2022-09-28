@@ -83,7 +83,7 @@ The validation rules for this request are:
     'Id' => 'required|integer',
     'Name' => 'required|legal_characters',
     'Surname' => 'required|legal_characters',
-    'IdentificationNo' => 'required|legal_characters',
+    'IdentificationNo' => 'required|legal_characters|unique:students,IdentificationNo',
     'Country' => 'nullable|legal_characters',
     'DateOfBirth' => 'nullable|date_format:Y-m-d',
     'RegisteredOn' => 'nullable|date_format:Y-m-d',
@@ -111,3 +111,13 @@ The validation rules for this request are:
 
 ###Thoughts, notes and possible improvements on the task
 
+- As I'm not a huge fan of using database to imply business requirements, I've not created any restrictions on fields that can't be null, or have to be unique, or foreign key constraints, as I think db is a storage media, and the system itself should be the one that enforces business logic
+- I implemented the system as close as possible to my understanding of the requirement, as I was not sure how strict we are with these requirements. I would recommend the following:
+  - It would be easier with laravel if the Id field on the student table is 'id', less customization needed
+  - Requirement didn't specify the IdentificationNo to be unique, but I added the validation rule in, as I think it would make sense
+  - There wasn't a clear specification on how the search should work, I've implemented a very simple search, where you have to specify the field to search on, and the value to search for, with more time, I could extend this search to use elastic search, so we can return results based on relevance, implement fuzzy search, spell correction, and full name search etc
+  - In term of auditing, I've implemented recording of created_at, created_by, updated_at, updated_by for each record, as well as an activity log that records what data was set for create/update, what the previous data was, and what data have been changed. It could be implemented in different ways if there are more detailed specifications on how this should work, or what is required
+  - On authorization, if I had more time, I could look into implementing a refresh token as well as the access token, interface to create user etc
+  - I've only done feature tests for the core functionality of the system, if I had more time, I would do break the testing down more into unit level, and cover the user section
+- The docker environment setup could be improved with more variables loaded from the .env file
+   

@@ -19,7 +19,7 @@
             return [
                 'Name' => 'required|legal_characters',
                 'Surname' => 'required|legal_characters',
-                'IdentificationNo' => 'required|legal_characters',
+                'IdentificationNo' => 'required|legal_characters|unique:students,IdentificationNo',
                 'Country' => 'nullable|legal_characters',
                 'DateOfBirth' => 'nullable|date_format:Y-m-d',
                 'RegisteredOn' => 'nullable|date_format:Y-m-d',
