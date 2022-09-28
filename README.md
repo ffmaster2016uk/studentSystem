@@ -109,7 +109,7 @@ The validation rules for this request are:
 ];
 ```
 
-###Thoughts, notes and possible improvements on the task
+### Thoughts, notes and possible improvements on the task
 
 - As I'm not a huge fan of using database to imply business requirements, I've not created any restrictions on fields that can't be null, or have to be unique, or foreign key constraints, as I think db is a storage media, and the system itself should be the one that enforces business logic
 - I implemented the system as close as possible to my understanding of the requirement, as I was not sure how strict we are with these requirements. I would recommend the following:
