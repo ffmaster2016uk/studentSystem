@@ -2,6 +2,7 @@ version: '3'
 services:
     php:
         build: ./infrastructure/php
+        image: '${PREFIX}_php:8.1-fpm-alpine'
         container_name: ${PREFIX}_php
         restart: unless-stopped
         tty: true
@@ -23,7 +24,7 @@ services:
             args:
                 DEV_DOMAIN: ${DEV_DOMAIN}
                 NGINX_SSL: ${NGINX_SSL}
-        image: 'nginx:alpine'
+        image: '${PREFIX}_nginx:1.21.6-alpine'
         container_name: ${PREFIX}_nginx
         # restart: unless-stopped
         tty: true

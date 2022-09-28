@@ -118,6 +118,7 @@ The validation rules for this request are:
   - There wasn't a clear specification on how the search should work, I've implemented a very simple search, where you have to specify the field to search on, and the value to search for, with more time, I could extend this search to use elastic search, so we can return results based on relevance, implement fuzzy search, spell correction, and full name search etc
   - In term of auditing, I've implemented recording of created_at, created_by, updated_at, updated_by for each record, as well as an activity log that records what data was set for create/update, what the previous data was, and what data have been changed. It could be implemented in different ways if there are more detailed specifications on how this should work, or what is required
   - On authorization, if I had more time, I could look into implementing a refresh token as well as the access token, interface to create user etc
-  - I've only done feature tests for the core functionality of the system, if I had more time, I would do break the testing down more into unit level, and cover the user section
+  - I've only done feature tests for the core functionality of the system, if I had more time, I would break the testing down more, into unit level, and cover the user section
+  - I've not commented my code as much, as I've used sensible variable and method names. In a project where there are multiple developers involved, I would add comments according to PSR standards.
 - The docker environment setup could be improved with more variables loaded from the .env file
    
